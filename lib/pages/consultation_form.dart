@@ -26,6 +26,8 @@ class _ConsultationFormState extends State<ConsultationForm> {
     "Poultry"
   ];
 
+  bool _isLoading = false;
+
   // Date picker function
   Future<void> _selectDateAndTime(BuildContext context) async {
     // Show date picker
@@ -59,6 +61,50 @@ class _ConsultationFormState extends State<ConsultationForm> {
               .format(combinedDateTime); // Example: "Wed, Jan 1, 2025 5:30 PM"
         });
       }
+    }
+  }
+
+  // Function to handle form submission
+  Future<void> _submitForm() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      // Show a loading indicator and reset fields once the form is submitted
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Simulate a delay for the booking process (e.g., API call)
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Once the operation is done, show a success popup
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Prevent dialog from being dismissed by tapping outside
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Success"),
+            content:
+                const Text("Your appointment has been successfully booked."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Reset the form fields and hide the loading indicator
+                  setState(() {
+                    _isLoading = false;
+                    _nameController.clear();
+                    _mobileController.clear();
+                    _dateController.clear();
+                    _consultationType = null;
+                  });
+
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -139,12 +185,12 @@ class _ConsultationFormState extends State<ConsultationForm> {
               const SizedBox(height: 50),
               CustomButton(
                 text: "CREATE BOOKING",
+                onPressed: _submitForm,
                 color: const Color(0xFFad2806),
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Handle form submission
-                  }
-                },
+                width: MediaQuery.of(context).size.width,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : null,
               ),
             ],
           ),

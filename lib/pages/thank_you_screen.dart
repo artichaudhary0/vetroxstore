@@ -60,33 +60,33 @@ class ThankYouPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            const Text(
-              'Order Summary',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Card(
-              margin: EdgeInsets.symmetric(vertical: 10.0),
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Product: Widget Pro'),
-                    SizedBox(height: 5),
-                    Text('Price: ₹200'),
-                    SizedBox(height: 5),
-                    Text('Quantity: 1'),
-                    SizedBox(height: 5),
-                    Text('Total: ₹200'),
-                  ],
-                ),
-              ),
-            ),
+            // const Text(
+            //   'Order Summary',
+            //   style: TextStyle(
+            //     fontSize: 20,
+            //     fontWeight: FontWeight.w600,
+            //     color: Colors.black,
+            //   ),
+            // ),
+            // const SizedBox(height: 10),
+            // const Card(
+            //   margin: EdgeInsets.symmetric(vertical: 10.0),
+            //   child: Padding(
+            //     padding: EdgeInsets.all(16.0),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         Text('Product: Widget Pro'),
+            //         SizedBox(height: 5),
+            //         Text('Price: ₹200'),
+            //         SizedBox(height: 5),
+            //         Text('Quantity: 1'),
+            //         SizedBox(height: 5),
+            //         Text('Total: ₹200'),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 30),
             CustomButton(
               text: "Go to Home",

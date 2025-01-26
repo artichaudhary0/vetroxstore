@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Add this import
 import 'package:vetroxstore/pages/home_screen.dart';
-
-import 'login_screen.dart';
+import 'package:vetroxstore/pages/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,10 +40,26 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
+    // Check for token in SharedPreferences and navigate accordingly
+    _checkToken();
+  }
+
+  // Function to check for the token in SharedPreferences
+  Future<void> _checkToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token =
+        prefs.getString('token'); // Replace 'token' with your actual token key
+
     Timer(const Duration(seconds: 4), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      if (token != null && token.isNotEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
     });
   }
 
@@ -66,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
                 colors: [
                   Color(0xFFECEFF1),
                   Color(0xFF90A4AE),
-                ], // Light grey to soft blue-grey
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

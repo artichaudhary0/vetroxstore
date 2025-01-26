@@ -18,12 +18,72 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   bool _isChecked = false;
+  bool _isLoading = false;
 
-  final Map<String, dynamic> product = {
-    'name': 'Sample Product',
-    'price': 499,
-    'image': 'https://via.placeholder.com/150', // Example image URL
-  };
+  void _showDialog(String title, String content, {bool navigate = false}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isLoading = false;
+                  _villageController.clear();
+                  _districtController.clear();
+                  _pincodeController.clear();
+                  _landmarkController.clear();
+                  _stateController.clear();
+                  _mobileController.clear();
+                });
+                if (navigate) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThankYouPage(),
+                    ),
+                  );
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _placeOrder() async {
+    // Check if all fields are filled
+    if (_villageController.text.isEmpty ||
+        _districtController.text.isEmpty ||
+        _pincodeController.text.isEmpty ||
+        _landmarkController.text.isEmpty ||
+        _stateController.text.isEmpty ||
+        _mobileController.text.isEmpty) {
+      _showDialog("Error", "Please fill in all the fields.");
+      return;
+    }
+    if (!_isChecked) {
+      _showDialog("Error", "Please agree to the terms and conditions.");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    _showDialog("Success", "Your order has been successfully placed.",
+        navigate: true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +169,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 leading: Radio(
                   value: true,
                   groupValue: true,
-                  onChanged:
-                      null, // Static for now as only one option is available
+                  onChanged: null,
                 ),
               ),
               const SizedBox(height: 10),
@@ -135,24 +194,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 20),
               CustomButton(
                 text: "PLACE ORDER",
+                onPressed: _placeOrder,
                 color: const Color(0xFFad2806),
-                onPressed: () {
-                  if (_isChecked) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ThankYouPage(),
-                      ),
-                    );
-                  } else {
-                    // You can show an error message if the checkbox is not checked
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text("Please agree to the terms and conditions")),
-                    );
-                  }
-                },
+                width: MediaQuery.of(context).size.width,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : null,
               ),
             ],
           ),

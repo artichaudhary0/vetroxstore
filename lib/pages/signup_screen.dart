@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:vetroxstore/custom/custom_textfield.dart';
 import 'package:vetroxstore/pages/login_screen.dart';
-import 'package:vetroxstore/pages/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -17,22 +16,22 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  bool isLoading = false;
 
-  // Function to handle sign-up
-// Function to handle sign-up
   Future<void> _signup() async {
     final email = _emailController.text;
     final password = _passwordController.text;
     final name = _nameController.text;
 
-    // Check for empty fields
     if (email.isEmpty || password.isEmpty || name.isEmpty) {
       _showErrorDialog("All fields are required.");
-      print("Error: All fields are required.");
       return;
     }
 
-    // Prepare the payload for the POST request
+    setState(() {
+      isLoading = true;
+    });
+
     final Map<String, String> payload = {
       'name': name,
       'email': email,
@@ -40,14 +39,11 @@ class _SignupScreenState extends State<SignupScreen> {
     };
 
     try {
-      // Send the POST request
       final response = await http.post(
         Uri.parse('https://vertox.onrender.com/signup-email'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );
-
-      print(response.statusCode);
 
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
@@ -59,11 +55,13 @@ class _SignupScreenState extends State<SignupScreen> {
       } else {
         final responseBody = json.decode(response.body);
         _showErrorDialog(responseBody['message'] ?? "Signup failed!");
-        print("Error: ${responseBody['message'] ?? 'Signup failed!'}");
       }
     } catch (error) {
       _showErrorDialog("An error occurred: $error");
-      print("Error: $error");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -160,19 +158,20 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 24),
                     CustomButton(
-                      text: 'SIGN UP',
                       onPressed: _signup,
                       color: const Color(0xFFad2806),
                       width: MediaQuery.of(context).size.width,
+                      isLoading: isLoading,
+                      text: "SIGN UP",
                     ),
                     const SizedBox(height: 20),
                     Center(
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to login screen
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (_) => const LoginScreen()),
+                              builder: (_) => const LoginScreen(),
+                            ),
                           );
                         },
                         child: const Text(

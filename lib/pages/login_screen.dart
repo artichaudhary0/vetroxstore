@@ -19,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool isLoading = false;
 
   // Function to handle login
   Future<void> _login() async {
@@ -35,12 +36,21 @@ class _LoginScreenState extends State<LoginScreen> {
       'password': password,
     };
 
+    setState(() {
+      isLoading =
+          true; // Set loading state to true while the request is being processed
+    });
+
     try {
       final response = await http.post(
         Uri.parse('https://vertox.onrender.com/login-email'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );
+
+      setState(() {
+        isLoading = false; // Reset loading state
+      });
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
@@ -58,11 +68,14 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       } else {
-        // Show error message
+        // Handle non-200 status codes gracefully
         final responseBody = json.decode(response.body);
         _showErrorDialog(responseBody['message'] ?? "Login failed!");
       }
     } catch (error) {
+      setState(() {
+        isLoading = false; // Reset loading state
+      });
       _showErrorDialog("An error occurred: $error");
     }
   }
@@ -151,11 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                     ),
                     const SizedBox(height: 24),
+                    // Login button with loading state
                     CustomButton(
-                      text: 'LOG IN',
+                      text: isLoading ? 'Logging In...' : 'LOG IN',
                       onPressed: _login,
                       color: const Color(0xFFad2806),
                       width: MediaQuery.of(context).size.width,
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : null,
                     ),
                     const SizedBox(height: 20),
                     Center(

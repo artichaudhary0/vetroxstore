@@ -13,6 +13,8 @@ class MyCartPage extends StatefulWidget {
 
 class _MyCartPageState extends State<MyCartPage> {
   List<Map<String, dynamic>> _cartItems = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -22,20 +24,36 @@ class _MyCartPageState extends State<MyCartPage> {
 
   // Load cart items from SharedPreferences
   Future<void> _loadCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> cart = prefs.getStringList('cart') ?? [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> cart = prefs.getStringList('cart') ?? [];
 
-    setState(() {
-      _cartItems = cart.map((item) {
-        var parsedItem = json.decode(item) as Map<String, dynamic>;
-        // Ensure 'price' is parsed as a double
-        parsedItem['price'] =
-            double.tryParse(parsedItem['price'].toString()) ?? 0.0;
-        parsedItem['quantity'] =
-            parsedItem['quantity'] ?? 1; // Default quantity to 1
-        return parsedItem;
-      }).toList();
-    });
+      if (cart.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _cartItems = [];
+          _errorMessage = null; // Reset error message if cart is empty
+        });
+      } else {
+        setState(() {
+          _cartItems = cart.map((item) {
+            var parsedItem = json.decode(item) as Map<String, dynamic>;
+            // Ensure 'price' is parsed as a double
+            parsedItem['price'] =
+                double.tryParse(parsedItem['price'].toString()) ?? 0.0;
+            parsedItem['quantity'] =
+                parsedItem['quantity'] ?? 1; // Default quantity to 1
+            return parsedItem;
+          }).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Failed to load cart. Please try again.";
+      });
+    }
   }
 
   // Calculate the total price of items in the cart
@@ -111,87 +129,98 @@ class _MyCartPageState extends State<MyCartPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Expanded(
-              child: _cartItems.isEmpty
-                  ? const Center(child: Text('No items in cart'))
-                  : ListView.builder(
-                      itemCount: _cartItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _cartItems[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.network(
-                                  item['image'],
-                                  height: 80,
-                                  width: 80,
-                                  fit: BoxFit.cover,
+            // Loading state
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_errorMessage != null)
+              // Error message state
+              Center(
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              )
+            else if (_cartItems.isEmpty)
+              // No items in cart state
+              const Center(child: Text('No items in cart'))
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = _cartItems[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              item['image'],
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['name'],
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                const SizedBox(height: 8),
+                                Text(
+                                  "₹${item['price'].toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
                                   children: [
-                                    Text(
-                                      item['name'],
-                                      style: const TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: () {
+                                        _updateQuantity(
+                                            index, item['quantity'] - 1);
+                                      },
                                     ),
-                                    const SizedBox(height: 8),
                                     Text(
-                                      "₹${item['price'].toStringAsFixed(2)}",
-                                      style: const TextStyle(
-                                        fontSize: 16.0,
-                                        color: Colors.grey,
-                                      ),
+                                      item['quantity'].toString(),
+                                      style: const TextStyle(fontSize: 16.0),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.remove),
-                                          onPressed: () {
-                                            _updateQuantity(
-                                                index, item['quantity'] - 1);
-                                          },
-                                        ),
-                                        Text(
-                                          item['quantity'].toString(),
-                                          style:
-                                              const TextStyle(fontSize: 16.0),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            _updateQuantity(
-                                                index, item['quantity'] + 1);
-                                          },
-                                        ),
-                                      ],
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      onPressed: () {
+                                        _updateQuantity(
+                                            index, item['quantity'] + 1);
+                                      },
                                     ),
                                   ],
                                 ),
-                              ),
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _removeItem(index);
-                                },
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
-            ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _removeItem(index);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),

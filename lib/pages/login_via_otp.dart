@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:vetroxstore/custom/custom_textfield.dart';
 import 'package:http/http.dart' as http;
+import 'package:vetroxstore/pages/main_screen.dart';
 
 class LoginOTPScreen extends StatefulWidget {
   const LoginOTPScreen({super.key});
@@ -19,12 +19,16 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
   String phone = '';
   String otp = '';
   bool isOtpSent = false;
+  bool isLoading = false;
 
-  // Function to send OTP to the phone number
   Future<void> sendOtp() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final response = await http.post(
       Uri.parse('https://vertox.onrender.com/signup-phone'),
-      body: json.encode({'mobile': phone}),
+      body: json.encode({'mobile': phone, 'name': "Arti chaudhary"}),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -39,7 +43,7 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
 
   Future<void> verifyOtp() async {
     final response = await http.post(
-      Uri.parse('https://your-backend-url.com/verify-mobile'),
+      Uri.parse('https://vertox.onrender.com/verify-mobile'),
       body: json.encode({'mobile': phone, 'otp': otp}),
       headers: {'Content-Type': 'application/json'},
     );
@@ -48,12 +52,17 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
       final responseBody = json.decode(response.body);
       final token = responseBody['token'];
 
-      // Save the token in shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
 
       print('OTP verified successfully, token saved!');
-      // Navigate to the next screen or login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainScreen(),
+        ),
+      );
+      Navigator.pushReplacementNamed(context, '/'); // Example navigation
     } else {
       print('Invalid OTP');
     }
@@ -80,13 +89,18 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    // Email label and text field
-                    const CustomTextField(
+                    // Phone number label and text field
+                    CustomTextField(
+                      controller: phoneController,
                       label: 'Phone Number',
                       hintText: 'Enter phone number...',
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) {
+                        setState(() {
+                          phone = value;
+                        });
+                      },
                     ),
-
                     const SizedBox(height: 5),
                     Text(
                       "Please enter your phone number (in international format) that you would like to verify.",
@@ -95,31 +109,36 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
                         fontSize: 14,
                       ),
                     ),
-
                     const SizedBox(height: 15),
 
-                    const SizedBox(height: 24),
-                    Center(
-                      child: Column(
-                        children: [
-                          CustomButton(
-                            text: 'GET OTP',
-                            onPressed: () {
-                              // Handle sign-up logic
-                            },
-                            width: MediaQuery.of(context).size.width * .5,
-                          ),
-                          const SizedBox(height: 15),
-                          CustomButton(
-                            text: 'LOG IN',
-                            onPressed: () {
-                              // Handle sign-up logic
-                            },
-                            width: MediaQuery.of(context).size.width * .5,
-                          ),
-                        ],
+                    // Show OTP input and verify button only after OTP is sent
+                    if (!isOtpSent)
+                      CustomButton(
+                        text: 'GET OTP',
+                        onPressed: sendOtp, // Send OTP
+                        width: MediaQuery.of(context).size.width * .5,
                       ),
-                    ),
+
+                    // OTP input and verify button after OTP is sent
+                    if (isOtpSent) ...[
+                      CustomTextField(
+                        controller: otpController,
+                        label: 'Enter OTP',
+                        hintText: 'Enter OTP...',
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setState(() {
+                            otp = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      CustomButton(
+                        text: 'VERIFY OTP',
+                        onPressed: verifyOtp, // Verify OTP
+                        width: MediaQuery.of(context).size.width * .5,
+                      ),
+                    ],
                     const SizedBox(height: 20),
                   ],
                 ),

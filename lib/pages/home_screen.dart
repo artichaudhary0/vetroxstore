@@ -34,7 +34,6 @@ class HomeScreen extends StatelessWidget {
               CustomButton(
                 text: 'SIGN UP',
                 onPressed: () {
-                  // Handle login logic
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SignupScreen()),
                   );
