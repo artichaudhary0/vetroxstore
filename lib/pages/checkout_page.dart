@@ -19,6 +19,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _mobileController = TextEditingController();
   bool _isChecked = false;
 
+  final Map<String, dynamic> product = {
+    'name': 'Sample Product',
+    'price': 499,
+    'image': 'https://via.placeholder.com/150', // Example image URL
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +55,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Display product details at the top
+              Row(
+                children: [
+                  Image.network(
+                    product['image'],
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product['name'],
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "₹${product['price']}",
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               const Text(
                 "Your Address",
                 style: TextStyle(
@@ -127,21 +168,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 20),
               CustomButton(
-                  text: "PLACE ORDER",
-                  color: const Color(0xFFad2806),
-                  onPressed: () {
-                    // _isChecked
-                    //     ? () {
+                text: "PLACE ORDER",
+                color: const Color(0xFFad2806),
+                onPressed: () {
+                  if (_isChecked) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ThankYouPage(),
                       ),
                     );
-                    // }
-                    //     : null,
-                  } // Disable button if checkbox is not selected
-                  ),
+                  } else {
+                    // You can show an error message if the checkbox is not checked
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text("Please agree to the terms and conditions")),
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),

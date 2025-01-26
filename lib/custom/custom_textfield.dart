@@ -67,7 +67,7 @@ class CustomTextField extends StatelessWidget {
                 width: 2.0,
               ),
             ),
-            errorText: errorText, // Show error message when not null
+            errorText: errorText,
             errorStyle: const TextStyle(
               color: Colors.red,
               fontSize: 14,

@@ -5,7 +5,7 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color color;
   final double width;
-  final double? fontSize; // Optional fontSize parameter
+  final double? fontSize;
 
   const CustomButton({
     super.key,
@@ -32,8 +32,7 @@ class CustomButton extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize:
-                fontSize ?? 16, // Use default fontSize of 16 if not provided
+            fontSize: fontSize ?? 16,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),

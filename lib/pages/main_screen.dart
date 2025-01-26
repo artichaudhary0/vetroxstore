@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vetroxstore/pages/about_us_page.dart';
 import 'package:vetroxstore/pages/become_seller_page.dart';
+import 'package:vetroxstore/pages/call_center_page.dart';
 import 'package:vetroxstore/pages/consultation_form.dart';
 import 'package:vetroxstore/pages/my_cart_page.dart';
 import 'package:vetroxstore/pages/store_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vetroxstore/pages/login_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,12 +22,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const StoreScreen(),
-    const Center(
-      child: Text(
-        'Search Page',
-        style: TextStyle(fontSize: 24),
-      ),
-    ),
+    const CallCenterScreen(),
     const ConsultationForm(),
   ];
 
@@ -33,15 +32,15 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _onMenuItemTap(int index, String page) {
-    // Close the menu
+  void _onMenuItemTap(int index, String page) async {
     _toggleMenu();
-    // Navigate to respective page
     if (page == 'Our Website') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AboutPage()),
-      );
+      const url = 'https://vetrox.in/';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
     } else if (page == 'My Cart') {
       Navigator.push(
         context,
@@ -53,14 +52,25 @@ class _MainScreenState extends State<MainScreen> {
         MaterialPageRoute(builder: (context) => const AboutPage()),
       );
     } else if (page == 'Become Seller') {
-      // Handle navigation for 'Become Seller'
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const BecomeSellerPage()),
       );
     } else if (page == 'Log Out') {
-      // Handle log out (this might clear session or redirect to login screen)
+      _logOut();
     }
+  }
+
+  // Log Out function
+  Future<void> _logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('token'));
+    await prefs.remove('token');
+    print(prefs.getString('token'));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 
   @override
@@ -72,6 +82,7 @@ class _MainScreenState extends State<MainScreen> {
             elevation: 6,
             shadowColor: Colors.grey.withOpacity(0.5),
             backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
             title: const Text(
               "STORE",
               style: TextStyle(
@@ -205,6 +216,7 @@ class MenuItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const MenuItem({
+    super.key,
     required this.icon,
     required this.text,
     required this.onTap,
