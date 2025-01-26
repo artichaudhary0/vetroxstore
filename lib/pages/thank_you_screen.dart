@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vetroxstore/custom/custom_button.dart'; // Assuming you have a custom button widget
+import 'package:vetroxstore/custom/custom_button.dart';
+import 'package:vetroxstore/pages/main_screen.dart'; // Assuming you have a custom button widget
 
 class ThankYouPage extends StatelessWidget {
   const ThankYouPage({super.key});
@@ -91,8 +92,12 @@ class ThankYouPage extends StatelessWidget {
               text: "Go to Home",
               color: const Color(0xFF082580),
               onPressed: () {
-                Navigator.pushReplacementNamed(
-                    context, '/home'); // Navigate to Home Page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainScreen(),
+                  ),
+                ); // Navigate to Home Page
               },
             ),
           ],

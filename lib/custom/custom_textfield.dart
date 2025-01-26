@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final String? errorText; // Error message
   final TextEditingController? controller; // Optional controller
   final String? Function(String?)? validator; // Optional validator
+  final ValueChanged<String>? onChanged; // Optional onChanged callback
 
   const CustomTextField({
     super.key,
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.errorText,
     this.controller,
     this.validator,
+    this.onChanged, // Add onChanged as an optional parameter
   });
 
   @override
@@ -40,6 +42,7 @@ class CustomTextField extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          onChanged: onChanged, // Use the optional onChanged callback
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(

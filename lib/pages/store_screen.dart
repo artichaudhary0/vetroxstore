@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vetroxstore/custom/custom_button.dart'; // Import your custom button
 import 'package:http/http.dart' as http;
+import 'package:vetroxstore/pages/buy_now_screen.dart';
 import 'dart:convert';
 
 import 'checkout_page.dart';
@@ -208,7 +209,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              CheckoutScreen(),
+                                              const BuyNowScreen(),
                                           settings: RouteSettings(
                                             arguments:
                                                 product, // Pass the selected product

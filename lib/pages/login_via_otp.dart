@@ -1,9 +1,63 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:vetroxstore/custom/custom_textfield.dart';
+import 'package:http/http.dart' as http;
 
-class LoginOTPScreen extends StatelessWidget {
+class LoginOTPScreen extends StatefulWidget {
   const LoginOTPScreen({super.key});
+
+  @override
+  State<LoginOTPScreen> createState() => _LoginOTPScreenState();
+}
+
+class _LoginOTPScreenState extends State<LoginOTPScreen> {
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  String phone = '';
+  String otp = '';
+  bool isOtpSent = false;
+
+  // Function to send OTP to the phone number
+  Future<void> sendOtp() async {
+    final response = await http.post(
+      Uri.parse('https://vertox.onrender.com/signup-phone'),
+      body: json.encode({'mobile': phone}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        isOtpSent = true;
+      });
+    } else {
+      print('Failed to send OTP');
+    }
+  }
+
+  Future<void> verifyOtp() async {
+    final response = await http.post(
+      Uri.parse('https://your-backend-url.com/verify-mobile'),
+      body: json.encode({'mobile': phone, 'otp': otp}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+      final token = responseBody['token'];
+
+      // Save the token in shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+
+      print('OTP verified successfully, token saved!');
+      // Navigate to the next screen or login
+    } else {
+      print('Invalid OTP');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

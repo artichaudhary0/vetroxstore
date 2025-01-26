@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetroxstore/pages/home_screen.dart';
 import 'package:vetroxstore/pages/main_screen.dart';
 import 'package:vetroxstore/pages/signup_screen.dart';
 import 'package:vetroxstore/pages/splash_screen.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
       ),
-      home: const SignupScreen(),
+      home: const HomeScreen(),
     );
   }
 }
