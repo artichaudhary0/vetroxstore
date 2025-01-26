@@ -27,10 +27,13 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
     });
 
     final response = await http.post(
-      Uri.parse('https://vertox.onrender.com/signup-phone'),
+      Uri.parse('https://votex-spca.onrender.com/login-phone'),
       body: json.encode({'mobile': phone, 'name': "Arti chaudhary"}),
       headers: {'Content-Type': 'application/json'},
     );
+
+    print(response.body);
+    print(response.statusCode);
 
     if (response.statusCode == 200) {
       setState(() {
@@ -43,11 +46,12 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
 
   Future<void> verifyOtp() async {
     final response = await http.post(
-      Uri.parse('https://vertox.onrender.com/verify-mobile'),
+      Uri.parse('https://votex-spca.onrender.com/verify-otp'),
       body: json.encode({'mobile': phone, 'otp': otp}),
       headers: {'Content-Type': 'application/json'},
     );
-
+    print(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
       final token = responseBody['token'];
@@ -62,7 +66,6 @@ class _LoginOTPScreenState extends State<LoginOTPScreen> {
           builder: (context) => const MainScreen(),
         ),
       );
-      Navigator.pushReplacementNamed(context, '/'); // Example navigation
     } else {
       print('Invalid OTP');
     }

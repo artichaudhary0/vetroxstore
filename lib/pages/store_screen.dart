@@ -40,7 +40,7 @@ class _StoreScreenState extends State<StoreScreen> {
     token = prefs.getString('token') ?? '';
     print("tokeennnnn" + token);
 
-    const url = 'https://vertox.onrender.com/products';
+    const url = 'https://votex-spca.onrender.com/products';
     final response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token', // Pass the token in the request headers
     });

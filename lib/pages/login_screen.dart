@@ -37,19 +37,18 @@ class _LoginScreenState extends State<LoginScreen> {
     };
 
     setState(() {
-      isLoading =
-          true; // Set loading state to true while the request is being processed
+      isLoading = true;
     });
 
     try {
       final response = await http.post(
-        Uri.parse('https://vertox.onrender.com/login-email'),
+        Uri.parse('https://votex-spca.onrender.com/login-email'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );
 
       setState(() {
-        isLoading = false; // Reset loading state
+        isLoading = false;
       });
 
       if (response.statusCode == 200) {
@@ -57,8 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final token = responseBody['token'];
 
         debugPrint(token);
-
-        print("Login Successful! Token: $token");
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
@@ -68,13 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       } else {
-        // Handle non-200 status codes gracefully
         final responseBody = json.decode(response.body);
         _showErrorDialog(responseBody['message'] ?? "Login failed!");
       }
     } catch (error) {
       setState(() {
-        isLoading = false; // Reset loading state
+        isLoading = false;
       });
       _showErrorDialog("An error occurred: $error");
     }
@@ -101,120 +97,128 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double dynamicHeight = screenHeight * 0.18;
     return Scaffold(
       backgroundColor: const Color(0xFF082580),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                "VETROX",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: dynamicHeight,
                 ),
-              ),
-              const SizedBox(height: 40),
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 3,
-                    ),
-                  ],
+                const Text(
+                  "VETROX",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Log In',
-                        style: TextStyle(
-                          fontSize: 30,
-                          color: Color(0xFF082580),
-                          fontWeight: FontWeight.bold,
-                        ),
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 3,
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Email label and text field
-                    CustomTextField(
-                      controller: _emailController,
-                      label: 'Email',
-                      hintText: 'Enter Email',
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 15),
-                    // Password label and text field
-                    CustomTextField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hintText: 'Enter Password...',
-                      keyboardType: TextInputType.text,
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 24),
-                    // Login button with loading state
-                    CustomButton(
-                      text: isLoading ? 'Logging In...' : 'LOG IN',
-                      onPressed: _login,
-                      color: const Color(0xFFad2806),
-                      width: MediaQuery.of(context).size.width,
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ForgetPasswordScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          "FORGOT PASSWORD?",
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Log In',
                           style: TextStyle(
+                            fontSize: 30,
+                            color: Color(0xFF082580),
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
                           ),
                         ),
                       ),
-                    ),
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
+                      const SizedBox(height: 20),
+                      // Email label and text field
+                      CustomTextField(
+                        controller: _emailController,
+                        label: 'Email',
+                        hintText: 'Enter Email',
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 15),
+                      // Password label and text field
+                      CustomTextField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        hintText: 'Enter Password...',
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 24),
+                      // Login button with loading state
+                      CustomButton(
+                        text: isLoading ? 'Logging In...' : 'LOG IN',
+                        onPressed: _login,
+                        color: const Color(0xFFad2806),
+                        width: MediaQuery.of(context).size.width,
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ForgetPasswordScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "FORGOT PASSWORD?",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
-                          );
-                        },
-                        child: const Text(
-                          "DON'T HAVE AN ACCOUNT? SIGN UP",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const SignupScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "DON'T HAVE AN ACCOUNT? SIGN UP",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -115,6 +115,30 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
     }
   }
 
+  void _showOrderSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Order Placed"),
+        content: const Text("Your order has been successfully placed!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Close the dialog
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ThankYouPage(),
+                ),
+              ); // Navigate to Thank You screen
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

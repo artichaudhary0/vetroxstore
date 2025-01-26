@@ -3,27 +3,39 @@ import 'package:http/http.dart' as http;
 import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:vetroxstore/custom/custom_textfield.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'reset_password_screen.dart'; // Import the ResetPasswordScreen
 
-class ForgetPasswordScreen extends StatefulWidget {
-  const ForgetPasswordScreen({super.key});
+import 'package:vetroxstore/pages/login_screen.dart';
+
+class ResetPasswordScreen extends StatefulWidget {
+  final String resetToken;
+  const ResetPasswordScreen({super.key, required this.resetToken});
 
   @override
-  _ForgetPasswordScreenState createState() => _ForgetPasswordScreenState();
+  _ResetPasswordScreenState createState() => _ResetPasswordScreenState();
 }
 
-class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
-  final TextEditingController _emailController = TextEditingController();
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
   String _message = '';
 
-  // Function to handle forgot password request
-  Future<void> _forgotPassword() async {
-    final email = _emailController.text;
-    if (email.isEmpty) {
+  // Function to handle reset password request
+  Future<void> _resetPassword() async {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password.isEmpty || confirmPassword.isEmpty) {
       setState(() {
-        _message = 'Please enter your email.';
+        _message = 'Please enter both passwords.';
+      });
+      return;
+    }
+
+    if (password != confirmPassword) {
+      setState(() {
+        _message = 'Passwords do not match.';
       });
       return;
     }
@@ -36,33 +48,30 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://votex-spca.onrender.com/forgot-password'), // Replace with actual backend URL
+            'https://votex-spca.onrender.com/reset-password'), // Replace with actual backend URL
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email}),
+        body: json.encode({
+          'resetToken': widget.resetToken,
+          'newPassword': password,
+        }),
       );
 
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final resetToken = data['resetToken'];
-
-        // Save the reset token to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('resetPasswordToken', resetToken);
-
         setState(() {
-          _message = 'Please check your email for the reset link.';
+          _message = 'Password reset successfully!';
         });
-
         // Navigate to the Reset Password Screen
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResetPasswordScreen(resetToken: resetToken),
+            builder: (context) => LoginScreen(),
           ),
         );
       } else {
         setState(() {
-          _message = 'Failed to send reset link. Try again later.';
+          _message = 'Failed to reset password. Try again later.';
         });
       }
     } catch (error) {
@@ -98,7 +107,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     children: [
                       const SizedBox(height: 20),
                       const Text(
-                        "Password Reset",
+                        "Reset Password",
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -107,27 +116,36 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Enter your email address and we'll send you a link to reset your password.",
+                        "Enter your new password.",
                         style: TextStyle(
-                          color: Colors.grey[80],
+                          color: Colors.grey[800],
                           fontSize: 14,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Email label and text field
+                      // Password text fields
                       CustomTextField(
-                        label: 'Email',
-                        hintText: 'Enter email...',
-                        keyboardType: TextInputType.emailAddress,
-                        controller: _emailController,
+                        label: 'New Password',
+                        hintText: 'Enter new password...',
+                        obscureText: true,
+                        controller: _passwordController,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomTextField(
+                        label: 'Confirm Password',
+                        hintText: 'Confirm your new password...',
+                        obscureText: true,
+                        controller: _confirmPasswordController,
                       ),
                       const SizedBox(height: 24),
                       Center(
                         child: Column(
                           children: [
                             CustomButton(
-                              text: _isLoading ? 'Sending...' : 'Submit',
-                              onPressed: _forgotPassword,
+                              text: _isLoading
+                                  ? 'Resetting...'
+                                  : 'Reset Password',
+                              onPressed: _resetPassword,
                               color: const Color(0xFFad2806),
                               width: MediaQuery.of(context).size.width,
                             ),

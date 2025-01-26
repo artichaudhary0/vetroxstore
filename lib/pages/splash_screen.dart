@@ -40,15 +40,12 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Check for token in SharedPreferences and navigate accordingly
     _checkToken();
   }
 
-  // Function to check for the token in SharedPreferences
   Future<void> _checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token =
-        prefs.getString('token'); // Replace 'token' with your actual token key
+    String? token = prefs.getString('token');
 
     Timer(const Duration(seconds: 4), () {
       if (token != null && token.isNotEmpty) {
@@ -71,6 +68,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -90,34 +90,39 @@ class _SplashScreenState extends State<SplashScreen>
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Logo animation with dynamic sizing
               ScaleTransition(
                 scale: _logoAnimation,
                 child: Image.asset(
                   'assets/applogo.png',
-                  width: 250,
-                  height: 250,
+                  width: screenWidth *
+                      0.6, // Responsive width based on screen size
+                  height: screenWidth *
+                      0.6, // Responsive height based on screen size
                 ),
               ),
               const SizedBox(height: 30),
+              // Welcome text with responsive size
               FadeTransition(
                 opacity: _textAnimation,
-                child: const Text(
+                child: Text(
                   "Welcome to MyApp",
                   style: TextStyle(
                     color: Colors.black87,
-                    fontSize: 26,
+                    fontSize: screenWidth * 0.07, // Scalable font size
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
+              // Subtitle text with responsive size
               FadeTransition(
                 opacity: _textAnimation,
-                child: const Text(
+                child: Text(
                   "By Adarsh Tiwari's Team",
                   style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 16,
+                    fontSize: screenWidth * 0.04, // Scalable font size
                     fontStyle: FontStyle.italic,
                   ),
                 ),
