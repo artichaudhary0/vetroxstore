@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vetroxstore/custom/custom_button.dart'; // Import your custom button
+import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:vetroxstore/pages/buy_now_screen.dart';
 import 'dart:convert';
-import 'package:shimmer/shimmer.dart'; // Import shimmer package
-
-import 'checkout_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -251,74 +249,81 @@ class _StoreScreenState extends State<StoreScreen> {
             ),
             child: Image.network(
               product["image"]!,
-              height: 130,
+              height: 120,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-            child: Text(
-              product["name"]!,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0,
-                color: Color(0xFF333333), // Dark gray text color
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-            child: Text(
-              product["price"]!,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0,
-                color: Color(0xFF00A86B), // Green color for price
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 40,
-                    child: CustomButton(
-                      text: "BUY",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BuyNowScreen(),
-                            settings: RouteSettings(
-                              arguments: product,
-                            ),
+          Expanded(
+            // Allow content to adapt within the available space
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product["name"]!,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                      color: Color(0xFF333333), // Dark gray text color
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "₹${product["price"]!}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                      color: Color(0xFF00A86B), // Green color for price
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 40,
+                          child: CustomButton(
+                            text: "BUY",
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const BuyNowScreen(),
+                                  settings: RouteSettings(
+                                    arguments: product,
+                                  ),
+                                ),
+                              );
+                            },
+                            color: const Color(
+                                0xFF082580), // Dark blue color for button
+                            width: double.infinity,
                           ),
-                        );
-                      },
-                      color:
-                          const Color(0xFF082580), // Dark blue color for button
-                      width: double.infinity,
-                    ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () {
+                            _addToCart(product);
+                          },
+                          icon: const Icon(
+                            Icons.add_shopping_cart,
+                            size: 22,
+                            color:
+                                Color(0xFF082580), // Dark blue color for icon
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () {
-                      _addToCart(product);
-                    },
-                    icon: const Icon(
-                      Icons.add_shopping_cart,
-                      size: 22,
-                      color: Color(0xFF082580), // Dark blue color for icon
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vetroxstore/pages/home_screen.dart';
 import 'package:vetroxstore/pages/main_screen.dart';
 
@@ -49,12 +49,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 4), () {
       if (token != null && token.isNotEmpty) {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainScreen()),
+          (route) => false, // Removes all previous routes
         );
       } else {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
         );
       }
     });
@@ -122,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen>
                   "By Adarsh Tiwari's Team",
                   style: TextStyle(
                     color: Colors.black54,
-                    fontSize: screenWidth * 0.04, // Scalable font size
+                    fontSize: screenWidth * 0.04,
                     fontStyle: FontStyle.italic,
                   ),
                 ),

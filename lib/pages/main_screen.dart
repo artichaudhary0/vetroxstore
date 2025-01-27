@@ -64,12 +64,11 @@ class _MainScreenState extends State<MainScreen> {
   // Log Out function
   Future<void> _logOut() async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('token'));
     await prefs.remove('token');
-    print(prefs.getString('token'));
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
     );
   }
 
