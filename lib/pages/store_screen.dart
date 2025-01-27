@@ -300,8 +300,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                 ),
                               );
                             },
-                            color: const Color(
-                                0xFF082580), // Dark blue color for button
+                            color: const Color(0xFF082580),
                             width: double.infinity,
                           ),
                         ),
@@ -315,8 +314,7 @@ class _StoreScreenState extends State<StoreScreen> {
                           icon: const Icon(
                             Icons.add_shopping_cart,
                             size: 22,
-                            color:
-                                Color(0xFF082580), // Dark blue color for icon
+                            color: Color(0xFF082580),
                           ),
                         ),
                       ),

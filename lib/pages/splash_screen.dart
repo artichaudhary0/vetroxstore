@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (token != null && token.isNotEmpty) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainScreen()),
-          (route) => false, // Removes all previous routes
+          (route) => false,
         );
       } else {
         Navigator.of(context).pushAndRemoveUntil(
