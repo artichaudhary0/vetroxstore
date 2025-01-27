@@ -18,13 +18,38 @@ class _SignupScreenState extends State<SignupScreen> {
   final _nameController = TextEditingController();
   bool isLoading = false;
 
+  // Function to validate password
+  String? _validatePassword(String password) {
+    if (password.isEmpty) {
+      return "Password cannot be empty";
+    } else if (password.length < 8) {
+      return "Password must be at least 8 characters long";
+    } else if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
+      return "Password must contain at least one uppercase letter";
+    } else if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
+      return "Password must contain at least one lowercase letter";
+    } else if (!RegExp(r'(?=.*[0-9])').hasMatch(password)) {
+      return "Password must contain at least one number";
+    } else if (!RegExp(r'(?=.*[!@#\$&*~])').hasMatch(password)) {
+      return "Password must contain at least one special character";
+    }
+    return null; // Valid password
+  }
+
   Future<void> _signup() async {
     final email = _emailController.text;
     final password = _passwordController.text;
     final name = _nameController.text;
 
+    // Validate form fields
     if (email.isEmpty || password.isEmpty || name.isEmpty) {
       _showErrorDialog("All fields are required.");
+      return;
+    }
+
+    final passwordError = _validatePassword(password);
+    if (passwordError != null) {
+      _showErrorDialog(passwordError);
       return;
     }
 
@@ -128,12 +153,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
+                      const Center(
                         child: Text(
                           'Sign Up',
                           style: TextStyle(
                             fontSize: 30,
-                            color: const Color(0xFF082580),
+                            color: Color(0xFF082580),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -162,6 +187,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: 'Enter full name...',
                         controller: _nameController,
                         keyboardType: TextInputType.name,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Name cannot be empty";
+                          } else if (value.trim().length < 2) {
+                            return "Name must be at least 2 characters long";
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 24),
                       CustomButton(

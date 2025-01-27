@@ -124,13 +124,13 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(ctx).pop(); // Close the dialog
+              Navigator.of(ctx).pop();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const ThankYouPage(),
                 ),
-              ); // Navigate to Thank You screen
+              );
             },
             child: const Text("OK"),
           ),

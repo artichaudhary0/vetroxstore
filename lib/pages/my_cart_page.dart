@@ -248,14 +248,31 @@ class _MyCartPageState extends State<MyCartPage> {
             CustomButton(
               text: "CHECKOUT",
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CheckoutScreen(),
-                  ),
-                );
+                if (_cartItems.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Cart is Empty"),
+                      content: const Text(
+                          "Please add items to your cart before proceeding to checkout."),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CheckoutScreen(),
+                    ),
+                  );
+                }
               },
-            ),
+            )
           ],
         ),
       ),

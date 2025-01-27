@@ -30,11 +30,13 @@ class _ConsultationFormState extends State<ConsultationForm> {
 
   // Date picker function
   Future<void> _selectDateAndTime(BuildContext context) async {
+    final DateTime now = DateTime.now();
+
     // Show date picker
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: now,
+      firstDate: now, // Restrict past dates
       lastDate: DateTime(2101),
     );
 
@@ -42,11 +44,11 @@ class _ConsultationFormState extends State<ConsultationForm> {
       // Show time picker
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+        initialTime: TimeOfDay.fromDateTime(now),
       );
 
       if (pickedTime != null) {
-        // Combine date and time and format it
+        // Combine date and time
         final DateTime combinedDateTime = DateTime(
           pickedDate.year,
           pickedDate.month,
@@ -55,7 +57,31 @@ class _ConsultationFormState extends State<ConsultationForm> {
           pickedTime.minute,
         );
 
-        // Format the combined DateTime into the desired format (short day name)
+        // Check if the combined date and time is in the past
+        if (combinedDateTime.isBefore(now)) {
+          // Show error dialog if the date and time are invalid
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Invalid Date and Time"),
+                content: const Text(
+                    "The selected date and time cannot be in the past."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+
+        // Format the combined DateTime into the desired format
         setState(() {
           _dateController.text = DateFormat('EEE, MMM d, yyyy h:mm a')
               .format(combinedDateTime); // Example: "Wed, Jan 1, 2025 5:30 PM"
@@ -64,10 +90,10 @@ class _ConsultationFormState extends State<ConsultationForm> {
     }
   }
 
-  // Function to handle form submission
   Future<void> _submitForm() async {
+    // Validate the form
     if (_formKey.currentState?.validate() ?? false) {
-      // Show a loading indicator and reset fields once the form is submitted
+      // Show a loading indicator and proceed with form submission
       setState(() {
         _isLoading = true;
       });
@@ -75,7 +101,7 @@ class _ConsultationFormState extends State<ConsultationForm> {
       // Simulate a delay for the booking process (e.g., API call)
       await Future.delayed(const Duration(seconds: 2));
 
-      // Once the operation is done, show a success popup
+      // Show a success popup
       showDialog(
         context: context,
         barrierDismissible:
@@ -97,7 +123,7 @@ class _ConsultationFormState extends State<ConsultationForm> {
                     _consultationType = null;
                   });
 
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Close the dialog
                 },
                 child: const Text("OK"),
               ),
@@ -105,11 +131,22 @@ class _ConsultationFormState extends State<ConsultationForm> {
           );
         },
       );
+    } else {
+      // If validation fails, focus the first invalid field (optional)
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Disable the "Create Booking" button if the date is in the past
+    final isBookingDisabled = _dateController.text.isEmpty ||
+        DateFormat('EEE, MMM d, yyyy h:mm a')
+            .parse(_dateController.text, true)
+            .isBefore(DateTime.now());
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -165,6 +202,16 @@ class _ConsultationFormState extends State<ConsultationForm> {
                     if (value == null || value.isEmpty) {
                       return "Please select a date and time";
                     }
+                    try {
+                      final DateTime selectedDate =
+                          DateFormat('EEE, MMM d, yyyy h:mm a')
+                              .parse(value, true); // Parse the input
+                      if (selectedDate.isBefore(DateTime.now())) {
+                        return "Selected date and time cannot be in the past";
+                      }
+                    } catch (e) {
+                      return "Invalid date and time format";
+                    }
                     return null;
                   },
                 ),
@@ -174,6 +221,14 @@ class _ConsultationFormState extends State<ConsultationForm> {
                 label: "Name",
                 hintText: "Enter name...",
                 controller: _nameController,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Name cannot be empty";
+                  } else if (value.trim().length < 2) {
+                    return "Name must be at least 2 characters long";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               CustomTextField(
@@ -181,6 +236,14 @@ class _ConsultationFormState extends State<ConsultationForm> {
                 hintText: "Enter mobile...",
                 controller: _mobileController,
                 keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Mobile number is required";
+                  } else if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return "Mobile number must be 10 digits";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 50),
               CustomButton(
