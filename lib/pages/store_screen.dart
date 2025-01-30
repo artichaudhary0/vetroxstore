@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:vetroxstore/pages/buy_now_screen.dart';
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
+import 'package:vetroxstore/pages/product_details_screen.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -21,27 +22,13 @@ class _StoreScreenState extends State<StoreScreen> {
   @override
   void initState() {
     super.initState();
-    _getToken();
     _fetchProducts();
   }
 
-  // Retrieve the token from SharedPreferences
-  Future<void> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token') ??
-        ''; // Retrieve token from shared preferences
-  }
-
-  // Fetch products from an API or local data
   Future<void> _fetchProducts() async {
     final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token') ?? '';
-    print("tokeennnnn" + token);
-
-    const url = 'https://votex-spca.onrender.com/products';
-    final response = await http.get(Uri.parse(url), headers: {
-      'Authorization': 'Bearer $token', // Pass the token in the request headers
-    });
+    const url = 'https://votexs.onrender.com/products';
+    final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -54,6 +41,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   "name": product["productName"],
                   "price": product["price"].toString(),
                   "image": product["imageUrl"],
+                  "description": product["description"],
+                  "benefits": product["benefits"] ?? [],
                 })
             .toList();
         isLoading = false;
@@ -89,9 +78,11 @@ class _StoreScreenState extends State<StoreScreen> {
     }
 
     await prefs.setStringList('cart', cart);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Added to cart!")),
+    );
   }
 
-  // Show error dialog
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -140,7 +131,6 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 
-  // Build shimmer loading effect
   Widget _buildShimmerLoading() {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -149,7 +139,7 @@ class _StoreScreenState extends State<StoreScreen> {
         mainAxisSpacing: 16.0,
         childAspectRatio: 0.80,
       ),
-      itemCount: 6, // Show 6 placeholder items
+      itemCount: 6,
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
@@ -226,105 +216,136 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 
-  // Build product card
   Widget _buildProductCard(Map<String, dynamic> product) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(12.0),
-            ),
-            child: Image.network(
-              product["image"]!,
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(
+              product: {
+                "id": product["id"],
+                "productName": product["name"],
+                "price": product["price"],
+                "imageUrl": product["image"],
+                "description": product["description"],
+                "benefits": product["benefits"],
+              },
             ),
           ),
-          Expanded(
-            // Allow content to adapt within the available space
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product["name"]!,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                      color: Color(0xFF333333), // Dark gray text color
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "₹${product["price"]!}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                      color: Color(0xFF00A86B), // Green color for price
-                    ),
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 2,
-                        child: SizedBox(
-                          height: 40,
-                          child: CustomButton(
-                            text: "BUY",
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const BuyNowScreen(),
-                                  settings: RouteSettings(
-                                    arguments: product,
-                                  ),
-                                ),
-                              );
-                            },
-                            color: const Color(0xFF082580),
-                            width: double.infinity,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () {
-                            _addToCart(product);
-                          },
-                          icon: const Icon(
-                            Icons.add_shopping_cart,
-                            size: 22,
-                            color: Color(0xFF082580),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 6,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12.0),
+              ),
+              child: Image.network(
+                product["image"]!,
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product["name"]!,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "₹${product["price"]!}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                        color: Color(0xFF00A86B),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 2,
+                          child: SizedBox(
+                            height: 40,
+                            child: CustomButton(
+                              text: "BUY",
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BuyNowScreen(),
+                                    settings: RouteSettings(
+                                      arguments: {
+                                        'productName': product['productName'] ??
+                                            'Unknown Product',
+                                        'imageUrl': product['image'] ?? '',
+                                        'price': product["price"] ?? ''
+                                      },
+                                    ),
+                                  ),
+                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) => const BuyNowScreen(),
+                                //     settings: RouteSettings(
+                                //       arguments: product,
+                                //     ),
+                                //   ),
+                                // );
+                              },
+                              color: const Color(0xFF082580),
+                              width: double.infinity,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: IconButton(
+                            onPressed: () {
+                              _addToCart(product);
+                            },
+                            icon: const Icon(
+                              Icons.add_shopping_cart,
+                              size: 22,
+                              color: Color(0xFF082580),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

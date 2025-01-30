@@ -19,31 +19,31 @@ class CallCenterScreen extends StatelessWidget {
       {
         "type": "Phone",
         "icon": Icons.phone,
-        "contact": "+91 9876543210",
+        "contact": "+91 8062358999",
         "action": () {
-          _launchURL("tel:+919340968782");
+          _launchURL("tel:+918062358999");
         }
       },
       {
         "type": "Email",
         "icon": Icons.email,
-        "contact": "support@company.com",
+        "contact": "vetroxvet@gmail.com",
         "action": () {
-          _launchURL("mailto:vetroxvet1@gmail.com");
+          _launchURL("mailto:vetroxvet@gmail.com");
         }
       },
       {
         "type": "WhatsApp",
         "icon": Icons.chair,
-        "contact": "+91 9876543210",
+        "contact": "+91 8896481581",
         "action": () {
-          _launchURL("https://wa.me/919340968782");
+          _launchURL("https://wa.me/918896481581");
         }
       },
       {
         "type": "Visit Website",
         "icon": Icons.web,
-        "contact": "Visit our Website",
+        "contact": "https://vetrox.in/",
         "action": () {
           _launchURL("https://vetrox.in/");
         }
@@ -53,7 +53,7 @@ class CallCenterScreen extends StatelessWidget {
         "icon": Icons.chat_bubble_outline,
         "contact": "Start Chat",
         "action": () {
-          _launchURL("sms:+919340968782");
+          _launchURL("sms:+918062358999");
         }
       },
     ];

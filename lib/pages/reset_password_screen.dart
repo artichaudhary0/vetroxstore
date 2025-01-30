@@ -48,7 +48,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://votex-spca.onrender.com/reset-password'), // Replace with actual backend URL
+            'https://votexs.onrender.com/auth/reset-password'), // Replace with actual backend URL
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'resetToken': widget.resetToken,
@@ -142,9 +142,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         child: Column(
                           children: [
                             CustomButton(
-                              text: _isLoading
+                              child: _isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : null,
+                              text: (_isLoading
                                   ? 'Resetting...'
-                                  : 'Reset Password',
+                                  : 'Reset Password'),
                               onPressed: _resetPassword,
                               color: const Color(0xFFad2806),
                               width: MediaQuery.of(context).size.width,

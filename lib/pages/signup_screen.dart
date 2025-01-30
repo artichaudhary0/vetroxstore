@@ -65,7 +65,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://votex-spca.onrender.com/signup-email'),
+        Uri.parse('https://votexs.onrender.com/auth/signup-email'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );

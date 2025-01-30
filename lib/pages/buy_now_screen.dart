@@ -184,7 +184,7 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8.0),
                               child: Image.network(
-                                product!['image'],
+                                product!['imageUrl'],
                                 height: 120,
                                 width: 120,
                                 fit: BoxFit.cover,
@@ -203,7 +203,7 @@ class _BuyNowScreenState extends State<BuyNowScreen> {
                                   ),
                                 ),
                                 Text(
-                                  product!['name'],
+                                  product!['productName'],
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[800],

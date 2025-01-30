@@ -36,7 +36,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://votex-spca.onrender.com/forgot-password'), // Replace with actual backend URL
+            'https://votexs.onrender.com/auth/forgot-password'), // Replace with actual backend URL
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': email}),
       );

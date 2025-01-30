@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://votex-spca.onrender.com/login-email'),
+        Uri.parse('https://votexs.onrender.com/auth/login-email'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );
