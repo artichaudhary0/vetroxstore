@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:vetroxstore/pages/splash_screen.dart';
+import 'package:vetroxstore/service/notification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService.instance.initialize();
   runApp(const MyApp());
 }
 

@@ -26,6 +26,12 @@ class _MainScreenState extends State<MainScreen> {
     const ConsultationForm(),
   ];
 
+  final List<String> _titles = [
+    "STORE",
+    "CONTACT",
+    "CONSULTATION",
+  ];
+
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
@@ -61,7 +67,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // Log Out function
   Future<void> _logOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
@@ -82,9 +87,9 @@ class _MainScreenState extends State<MainScreen> {
             shadowColor: Colors.grey.withOpacity(0.5),
             backgroundColor: Colors.white,
             automaticallyImplyLeading: false,
-            title: const Text(
-              "STORE",
-              style: TextStyle(
+            title: Text(
+              _titles[_currentIndex],
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
                 letterSpacing: 0,

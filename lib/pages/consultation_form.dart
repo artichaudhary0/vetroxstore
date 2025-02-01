@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vetroxstore/custom/custom_button.dart';
-import 'package:vetroxstore/custom/custom_textfield.dart'; // Your Custom TextField
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:vetroxstore/custom/custom_textfield.dart';
+import 'package:intl/intl.dart';
 
 class ConsultationForm extends StatefulWidget {
   const ConsultationForm({super.key});
@@ -28,27 +29,23 @@ class _ConsultationFormState extends State<ConsultationForm> {
 
   bool _isLoading = false;
 
-  // Date picker function
   Future<void> _selectDateAndTime(BuildContext context) async {
     final DateTime now = DateTime.now();
 
-    // Show date picker
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: now,
-      firstDate: now, // Restrict past dates
+      firstDate: now,
       lastDate: DateTime(2101),
     );
 
     if (pickedDate != null) {
-      // Show time picker
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(now),
       );
 
       if (pickedTime != null) {
-        // Combine date and time
         final DateTime combinedDateTime = DateTime(
           pickedDate.year,
           pickedDate.month,
@@ -57,9 +54,7 @@ class _ConsultationFormState extends State<ConsultationForm> {
           pickedTime.minute,
         );
 
-        // Check if the combined date and time is in the past
         if (combinedDateTime.isBefore(now)) {
-          // Show error dialog if the date and time are invalid
           showDialog(
             context: context,
             builder: (context) {
@@ -81,31 +76,46 @@ class _ConsultationFormState extends State<ConsultationForm> {
           return;
         }
 
-        // Format the combined DateTime into the desired format
         setState(() {
-          _dateController.text = DateFormat('EEE, MMM d, yyyy h:mm a')
-              .format(combinedDateTime); // Example: "Wed, Jan 1, 2025 5:30 PM"
+          _dateController.text =
+              DateFormat('EEE, MMM d, yyyy h:mm a').format(combinedDateTime);
         });
       }
     }
   }
 
+  Future<void> _showNotification() async {
+    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: false,
+    );
+
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      '✅ Consultation Appointment Booked!',
+      "Your consultation appointment has been successfully booked.",
+      platformChannelSpecifics,
+    );
+  }
+
   Future<void> _submitForm() async {
-    // Validate the form
     if (_formKey.currentState?.validate() ?? false) {
-      // Show a loading indicator and proceed with form submission
       setState(() {
         _isLoading = true;
       });
 
-      // Simulate a delay for the booking process (e.g., API call)
       await Future.delayed(const Duration(seconds: 2));
+      _showNotification();
 
-      // Show a success popup
       showDialog(
         context: context,
-        barrierDismissible:
-            false, // Prevent dialog from being dismissed by tapping outside
+        barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
             title: const Text("Success"),
@@ -114,7 +124,6 @@ class _ConsultationFormState extends State<ConsultationForm> {
             actions: [
               TextButton(
                 onPressed: () {
-                  // Reset the form fields and hide the loading indicator
                   setState(() {
                     _isLoading = false;
                     _nameController.clear();
@@ -123,7 +132,7 @@ class _ConsultationFormState extends State<ConsultationForm> {
                     _consultationType = null;
                   });
 
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
                 child: const Text("OK"),
               ),
@@ -132,21 +141,27 @@ class _ConsultationFormState extends State<ConsultationForm> {
         },
       );
     } else {
-      // If validation fails, focus the first invalid field (optional)
       setState(() {
         _isLoading = false;
       });
     }
   }
 
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Disable the "Create Booking" button if the date is in the past
-    final isBookingDisabled = _dateController.text.isEmpty ||
-        DateFormat('EEE, MMM d, yyyy h:mm a')
-            .parse(_dateController.text, true)
-            .isBefore(DateTime.now());
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),

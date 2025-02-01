@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vetroxstore/custom/custom_button.dart';
 import 'package:vetroxstore/custom/custom_textfield.dart';
 import 'package:vetroxstore/pages/thank_you_screen.dart';
@@ -19,6 +20,38 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _mobileController = TextEditingController();
   bool _isChecked = false;
   bool _isLoading = false;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> _showNotification() async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: false,
+    );
+
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      '✅ Order Confirmed!',
+      "Thank You! Your Order is Successfully Placed.",
+      platformChannelSpecifics,
+    );
+  }
 
   void _showDialog(String title, String content, {bool navigate = false}) {
     showDialog(
@@ -83,6 +116,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     _showDialog("Success", "Your order has been successfully placed.",
         navigate: true);
+    Future.delayed(const Duration(seconds: 3), _showNotification);
   }
 
   @override
